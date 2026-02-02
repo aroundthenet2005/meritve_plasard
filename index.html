@@ -46,6 +46,10 @@
   .section-title{margin:18px 0 6px;font-size:12px;letter-spacing:.6px;color:var(--muted);text-transform:uppercase}
   .required-note{color:var(--muted);font-size:12px;margin:-4px 0 10px}
   .optlist{display:flex;flex-direction:column;gap:6px}
+  .cutout-qty{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--text);font-size:13px;margin:4px 0}
+  .cutout-boxes{display:flex;gap:8px;align-items:center}
+  .cutout-box{display:inline-flex;align-items:center;margin:0}
+  .cutout-box input{width:18px;height:18px;margin:0}
   label.opt{display:flex;align-items:center;gap:8px;margin:4px 0;color:var(--text);font-size:13px}
   .group{padding:8px 10px;border:1px solid transparent;border-radius:12px;background:rgba(255,255,255,.02)}
   .group.invalid{border-color:rgba(255,107,107,.7);box-shadow:0 0 0 3px rgba(255,107,107,.12) inset}
@@ -126,7 +130,7 @@
   <!-- MERITEV -->
   <section id="tab-measure" class="grid">
     <div class="card">
-      <h2>Meritveni List</h2>
+      <h2>MERITVENI LIST</h2>
       <div class="required-note"><span class="req">*</span> Nakazuje obvezno vprašanje</div>
       <label>1. IME IN PRIIMEK STRANKE <span class="req">*</span></label>
       <input id="f_customer" placeholder="npr. Janez Novak"/>
@@ -153,10 +157,14 @@
         <div class="optlist">
           <label class="opt"><input type="radio" name="floor" value="Klet"/> Klet</label>
           <label class="opt"><input type="radio" name="floor" value="Pritličje"/> Pritličje</label>
-          <label class="opt"><input type="radio" name="floor" value="1. nadstropje / Visoko Pritličje"/> 1. nadstropje / Visoko Pritličje</label>
+          <label class="opt"><input type="radio" name="floor" value="Visoko pritličje"/> Visoko pritličje</label>
+          <label class="opt"><input type="radio" name="floor" value="1. nadstropje"/> 1. nadstropje</label>
           <label class="opt"><input type="radio" name="floor" value="2. nadstropje"/> 2. nadstropje</label>
           <label class="opt"><input type="radio" name="floor" value="3. nadstropje"/> 3. nadstropje</label>
-          <label class="opt"><input type="radio" name="floor" value="Drugo"/> Drugo:</label>
+          <label class="opt"><input type="radio" name="floor" value="4. nadstropje"/> 4. nadstropje</label>
+          <label class="opt"><input type="radio" name="floor" value="5. nadstropje"/> 5. nadstropje</label>
+          <label class="opt"><input type="radio" name="floor" value="6. nadstropje"/> 6. nadstropje</label>
+          <label class="opt"><input type="radio" name="floor" value="6+"/> 6+</label>
         </div>
       </div>
       <div class="error-text hidden" id="err_floor">To vprašanje je obvezno.</div>
@@ -167,10 +175,18 @@
         <div class="error-text hidden" id="err_floor_other">To vprašanje je obvezno.</div>
       </div>
 
-      <label>4. Morebitne opombe za monterja</label>
-      <textarea id="f_notes" placeholder="Vtičnice, izrezi, posebnosti, opombe..."></textarea>
+      <label>4. DOSTOP <span class="req">*</span></label>
+      <div id="g_access" class="group">
+        <div class="optlist">
+          <label class="opt"><input type="radio" name="access" value="Enostaven"/> Enostaven</label>
+          <label class="opt"><input type="radio" name="access" value="Srednje težek"/> Srednje težek</label>
+          <label class="opt"><input type="radio" name="access" value="Težek"/> Težek</label>
+          <label class="opt"><input type="radio" name="access" value="Pomoč stranke"/> Pomoč stranke</label>
+        </div>
+      </div>
+      <div class="error-text hidden" id="err_access">To vprašanje je obvezno.</div>
 
-      <label>5. Naslov omare <span class="req">*</span></label>
+      <label>5. Naslov prostora <span class="req">*</span></label>
       <input id="f_address" placeholder="..."/>
       <div class="error-text hidden" id="err_address">To vprašanje je obvezno.</div>
 
@@ -275,7 +291,7 @@
       </div>
       <div class="error-text hidden" id="err_floor_covering">To vprašanje je obvezno.</div>
 
-      <label>17. ALI IMA STRANKA V DANEM PROSTORU ELEKTRIKO <span class="req">*</span></label>
+      <label>17. ŠTEVILO EL. ELEMENTOV NA LOKACIJI OMARE <span class="req">*</span></label>
       <div id="g_electricity_count" class="group">
         <div class="optlist">
           <label class="opt"><input type="radio" name="electricity_count" value="0"/> 0</label>
@@ -283,12 +299,7 @@
           <label class="opt"><input type="radio" name="electricity_count" value="2"/> 2</label>
           <label class="opt"><input type="radio" name="electricity_count" value="3"/> 3</label>
           <label class="opt"><input type="radio" name="electricity_count" value="4"/> 4</label>
-          <label class="opt"><input type="radio" name="electricity_count" value="5"/> 5</label>
-          <label class="opt"><input type="radio" name="electricity_count" value="6"/> 6</label>
-          <label class="opt"><input type="radio" name="electricity_count" value="7"/> 7</label>
-          <label class="opt"><input type="radio" name="electricity_count" value="8"/> 8</label>
-          <label class="opt"><input type="radio" name="electricity_count" value="9"/> 9</label>
-          <label class="opt"><input type="radio" name="electricity_count" value="10"/> 10</label>
+          <label class="opt"><input type="radio" name="electricity_count" value="4+"/> 4+</label>
         </div>
       </div>
       <div class="error-text hidden" id="err_electricity_count">To vprašanje je obvezno.</div>
@@ -304,14 +315,21 @@
       </div>
       <div class="error-text hidden" id="err_electricity_move">To vprašanje je obvezno.</div>
 
-      <div class="section-title">TIP POHIŠTVA</div>
       <label>19. KJE BODO MOREBITNI IZREZI NAREJENI <span class="req">*</span></label>
       <div id="g_cutouts_where" class="group">
         <div class="optlist">
           <label class="opt"><input type="checkbox" name="cutouts_where" value="V PROIZVODNJI (ɸ60+rozeta)"/> V PROIZVODNJI (ɸ60+rozeta)</label>
           <label class="opt"><input type="checkbox" name="cutouts_where" value="NA LICU MESTA (monter)"/> NA LICU MESTA (monter)</label>
           <label class="opt"><input type="checkbox" name="cutouts_where" value="IZREZOV NE BO"/> IZREZOV NE BO</label>
-          <label class="opt"><input type="checkbox" name="cutouts_where" value="V PROIZVODNJI (KVADRATNI IZREZ)=25EUR"/> V PROIZVODNJI (KVADRATNI IZREZ)=25EUR</label>
+          <div class="cutout-qty">
+            <span>V PROIZVODNJI (KVADRATNI IZREZ)=25EUR</span>
+            <div class="cutout-boxes">
+              <label class="cutout-box"><input type="checkbox" name="cutouts_where" value="V PROIZVODNJI (KVADRATNI IZREZ)=25EUR" aria-label="Kvadratni izrez 1"/></label>
+              <label class="cutout-box"><input type="checkbox" name="cutouts_where" value="V PROIZVODNJI (KVADRATNI IZREZ)=25EUR" aria-label="Kvadratni izrez 2"/></label>
+              <label class="cutout-box"><input type="checkbox" name="cutouts_where" value="V PROIZVODNJI (KVADRATNI IZREZ)=25EUR" aria-label="Kvadratni izrez 3"/></label>
+              <label class="cutout-box"><input type="checkbox" name="cutouts_where" value="V PROIZVODNJI (KVADRATNI IZREZ)=25EUR" aria-label="Kvadratni izrez 4"/></label>
+            </div>
+          </div>
         </div>
       </div>
       <div class="error-text hidden" id="err_cutouts_where">To vprašanje je obvezno.</div>
@@ -374,7 +392,7 @@
       <label>28. VRATA <span class="req">*</span></label>
       <div id="g_door_type" class="group">
         <div class="optlist">
-          <label class="opt"><input type="radio" name="door_type" value="AL 10"/> AL 10</label>
+          <label class="opt"><input type="radio" name="door_type" value="AL10"/> AL10</label>
           <label class="opt"><input type="radio" name="door_type" value="AL20"/> AL20</label>
           <label class="opt"><input type="radio" name="door_type" value="PVC"/> PVC</label>
         </div>
@@ -426,7 +444,7 @@
       </div>
       <div class="hr"></div>
       <div class="muted">
-        Namig: trenutno formula uporablja <span class="kbd">w,h,d</span> (cm) in vrača EUR.
+        Namig: trenutno formula uporablja <span class="kbd">w,h,d</span> (cm) in vrača EUR. Doplačilo za nadstropje se prišteje avtomatsko.
       </div>
       <div class="row" style="margin-top:12px">
         <button class="btn secondary" id="btn_to_addons">Naprej → Dodatki</button>
@@ -657,7 +675,7 @@
         <div class="hr"></div>
 
         <h2>Formula za ceno omare</h2>
-        <div class="muted">Vpiši JS izraz, ki vrne ceno v EUR. Uporabne spremenljivke: <span class="kbd">w,h,d</span> (cm) in <span class="kbd">addonsTotal</span>.</div>
+        <div class="muted">Vpiši JS izraz, ki vrne ceno v EUR. Uporabne spremenljivke: <span class="kbd">w,h,d</span> (cm) in <span class="kbd">addonsTotal</span>. Doplačilo za nadstropje se prišteje avtomatsko.</div>
         <label>Formula</label>
         <textarea id="admin_formula"></textarea>
         <div class="row" style="margin-top:10px;justify-content:flex-end">
@@ -836,7 +854,7 @@
       customer:"",
       object:"", objectOther:"",
       floor:"", floorOther:"",
-      notes:"", address:"",
+      access:"", notes:"", address:"",
       images:[], detailImages:[], specialImages:[],
       hasDetails:"", hasSpecial:"",
       hasWall:"", wallRemove:"",
@@ -1114,8 +1132,8 @@
     document.getElementById("f_object_other").value = m.objectOther||"";
     setRadio("floor", m.floor||"");
     document.getElementById("f_floor_other").value = m.floorOther||"";
+    setRadio("access", m.access||"");
     document.getElementById("f_address").value = m.address||"";
-    document.getElementById("f_notes").value = m.notes||"";
     setRadio("has_details", m.hasDetails||"");
     setRadio("has_special", m.hasSpecial||"");
     setRadio("has_wall", m.hasWall||"");
@@ -1159,6 +1177,7 @@
     const objectOtherValue = document.getElementById("f_object_other").value.trim();
     const floorValue = readRadio("floor");
     const floorOtherValue = document.getElementById("f_floor_other").value.trim();
+    const accessValue = readRadio("access");
     const backType = readRadio("back_type");
     const stored = loadMeasure();
     const wEl = document.getElementById("f_w");
@@ -1173,7 +1192,8 @@
       objectOther: objectValue === "Drugo" ? objectOtherValue : "",
       floor: floorValue,
       floorOther: floorValue === "Drugo" ? floorOtherValue : "",
-      notes: document.getElementById("f_notes").value.trim(),
+      access: accessValue,
+      notes: stored.notes || "",
       address: document.getElementById("f_address").value.trim(),
       images: stored.images || [],
       detailImages: stored.detailImages || [],
@@ -1379,6 +1399,7 @@
     if (readRadio("floor") === "Drugo") {
       reqText("f_floor_other", "err_floor_other");
     }
+    reqRadio("access", "g_access", "err_access");
     reqText("f_address", "err_address");
     reqRadio("has_details", "g_has_details", "err_has_details");
     reqRadio("has_special", "g_has_special", "err_has_special");
@@ -1450,6 +1471,7 @@
     const imgCount = (arr) => (arr && arr.length) ? `${arr.length} slik` : "";
 
     add("Naslov omare", m.address);
+    add("Dostop", m.access);
     add("Slike prostora z izmerami", imgCount(m.images));
     add("Ima prostor detajle", m.hasDetails);
     if (m.hasDetails === "DA") add("Slike detaila", imgCount(m.detailImages));
@@ -1465,7 +1487,7 @@
       }
     }
     add("Talna obloga", m.floorCovering);
-    add("Elektrika (št. mest)", m.electricityCount);
+    add("Število el. elementov na lokaciji omare", m.electricityCount);
     add("Kdo bo prestavil elektriko", m.electricityMove);
     add("Izrezi", m.cutoutsWhere);
     add("Globina notranjosti omare (cm)", m.innerDepth);
@@ -1537,7 +1559,10 @@
     if (e.target.value) setFieldError(e.target, document.getElementById("err_object"), "");
   });
 
-  wireGroupClear("floor", "f_floor_group", "err_floor", updateFloorOtherVisibility);
+  wireGroupClear("floor", "f_floor_group", "err_floor", () => {
+    updateFloorOtherVisibility();
+    updateTotals();
+  });
   wireGroupClear("has_details", "g_has_details", "err_has_details", updateDetailVisibility);
   wireGroupClear("has_special", "g_has_special", "err_has_special", updateSpecialVisibility);
   wireGroupClear("has_wall", "g_has_wall", "err_has_wall", updateWallVisibility);
@@ -1546,7 +1571,8 @@
   wireGroupClear("floor_covering", "g_floor_covering", "err_floor_covering");
   wireGroupClear("electricity_count", "g_electricity_count", "err_electricity_count");
   wireGroupClear("electricity_move", "g_electricity_move", "err_electricity_move");
-  wireGroupClear("cutouts_where", "g_cutouts_where", "err_cutouts_where");
+  wireGroupClear("cutouts_where", "g_cutouts_where", "err_cutouts_where", updateTotals);
+  wireGroupClear("access", "g_access", "err_access");
   wireGroupClear("back_type", "g_back_type", "err_back_type", updateBackColorVisibility);
   wireGroupClear("grain", "g_grain", "err_grain");
   wireGroupClear("door_type", "g_door_type", "err_door_type");
@@ -1570,7 +1596,7 @@
       customer:"",
       object:"", objectOther:"",
       floor:"", floorOther:"",
-      notes:"", address:"",
+      access:"", notes:"", address:"",
       images:[], detailImages:[], specialImages:[],
       hasDetails:"", hasSpecial:"",
       hasWall:"", wallRemove:"",
@@ -1662,19 +1688,61 @@
   bindImageInput("f_special_images", "specialImages", "img_special_thumbs");
 
   // ---- Totals & formula ----
+  function floorSurcharge(m) {
+    const floor = (m.floor || "").trim().toLowerCase();
+    if (!floor) return 0;
+    if ([
+      "klet",
+      "pritličje",
+      "pritlicje",
+      "visoko pritličje",
+      "visoko pritlicje",
+      "1. nadstropje",
+      "1.nadstropje",
+      "1. nadstropje / visoko pritličje",
+      "1. nadstropje / visoko pritlicje"
+    ].includes(floor)) return 0;
+    if ([
+      "2. nadstropje",
+      "3. nadstropje",
+      "4. nadstropje",
+      "5. nadstropje",
+      "2.nadstropje",
+      "3.nadstropje",
+      "4.nadstropje",
+      "5.nadstropje"
+    ].includes(floor)) return 50;
+    if ([
+      "6. nadstropje",
+      "6.nadstropje",
+      "6+",
+      "6 +",
+      "6plus",
+      "6 plus"
+    ].includes(floor)) return 100;
+    return 0;
+  }
+  function cutoutsSurcharge(m) {
+    const cuts = Array.isArray(m.cutoutsWhere) ? m.cutoutsWhere : [];
+    const count = cuts.filter(v => v === "V PROIZVODNJI (KVADRATNI IZREZ)=25EUR").length;
+    return count * 25;
+  }
+
   function wardrobePrice() {
     const m = readMeasureFromUI();
     const w = Number(m.w||0), h = Number(m.h||0), d = Number(m.d||0);
     const addonsTotal = cartTotal();
     const expr = loadFormula();
+    const floorFee = floorSurcharge(m);
+    const cutoutsFee = cutoutsSurcharge(m);
     try {
       const fn = new Function("w","h","d","addonsTotal", "return (" + expr + ");");
       const val = fn(w,h,d,addonsTotal);
       const n = Number(val);
-      if (!isFinite(n)) return 0;
-      return Math.max(0, n);
+      if (!isFinite(n)) return floorFee + cutoutsFee;
+      return Math.max(0, n) + floorFee + cutoutsFee;
     } catch(e) {
-      return 0;
+      return floorFee + cutoutsFee;
     }
   }
 
@@ -1712,13 +1780,13 @@
     html += `<div style="height:8px"></div>`;
     html += `<div class="pill">Mere: <b>${m.w||0}</b> × <b>${m.h||0}</b> × <b>${m.d||0}</b> cm</div>`;
     html += `<div class="hr"></div>`;
-    html += `<div><b>Opombe:</b><br/>${escapeHtml(m.notes||"").replace(/\n/g,"<br/>")}</div>`;
+    html += `<div><b>Dostop:</b> ${escapeHtml(m.access||"")}</div>`;
     if (m.images && m.images.length) {
       html += `<div class="hr"></div><div class="thumbs">${m.images.slice(0,8).map(s => `<img src="${s}"/>`).join("")}</div>`;
     }
     const rows = buildMeritveniRows(m);
     if (rows.length) {
-      html += `<div class="hr"></div><b>Meritveni List</b>`;
+      html += `<div class="hr"></div><b>MERITVENI LIST</b>`;
       html += `<div class="list" style="margin-top:8px">` + rows.map(r => `
         <div class="item">
           <div style="min-width:0">
@@ -1921,13 +1989,13 @@
       </div>
 
       <div class="printCard">
-        <div><b>Opombe</b></div>
-        <div class="printMuted">${escapeHtml(m.notes||"").replace(/\n/g,"<br/>")}</div>
+        <div><b>Dostop</b></div>
+        <div class="printMuted">${escapeHtml(m.access||"")}</div>
       </div>
 
       ${rows.length ? `
         <div class="printCard">
-          <div><b>Meritveni List</b></div>
+          <div><b>MERITVENI LIST</b></div>
           <table style="width:100%;border-collapse:collapse;margin-top:10px">
             <tbody>
               ${rowsHtml}
