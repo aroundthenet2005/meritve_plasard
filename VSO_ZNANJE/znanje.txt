@@ -1,9 +1,0 @@
-VSO ZNANJE
-Ta datoteka je baza znanja za lokalni bot.
-Vsak odstavek je en kos znanja. Prva vrstica je naslov, spodaj je vsebina.
-
-Plasard meritve
-Tukaj vpisujes interne opombe, postopke, cene, posebnosti, itd.
-
-Pogosta vprasanja
-Dodaj Q/A ali navodila, ki jih bot lahko najde.
