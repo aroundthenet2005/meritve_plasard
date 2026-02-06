@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VSO ZNANJE</title>
+<style>
+  :root {
+    --bg: #0b0d12;
+    --bg-2: #10141d;
+    --panel: rgba(17, 22, 32, 0.92);
+    --panel-2: rgba(14, 18, 26, 0.92);
+    --border: rgba(255, 255, 255, 0.1);
+    --accent: #7bdff2;
+    --accent-2: #f2cc8f;
+    --text: #f5f7fb;
+    --muted: #a3b1c2;
+    --danger: #ff6b6b;
+    --ok: #7bdff2;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: "Bahnschrift", "Trebuchet MS", "Verdana", sans-serif;
+    background:
+      radial-gradient(900px 600px at 10% 10%, rgba(123, 223, 242, 0.08), transparent 60%),
+      radial-gradient(900px 600px at 90% 80%, rgba(242, 204, 143, 0.07), transparent 60%),
+      linear-gradient(180deg, var(--bg), #090b0f);
+    color: var(--text);
+  }
+
+  .hidden { display: none !important; }
+
+  .access-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 8, 12, 0.85);
+    z-index: 50;
+    padding: 16px;
+  }
+
+  .access-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    text-align: left;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  .access-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .access-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    line-height: 1.4;
+  }
+
+  .access-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(123, 223, 242, 0.18);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 12px;
+    letter-spacing: 0.2px;
+  }
+
+  .shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 22px;
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .title {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 12px;
+    max-width: 420px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 18px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  .chat {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .messages {
+    flex: 1;
+    overflow: auto;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .msg {
+    max-width: 80%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--panel-2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    animation: rise 0.18s ease;
+    white-space: pre-line;
+  }
+
+  .msg.user {
+    align-self: flex-end;
+    background: rgba(123, 223, 242, 0.14);
+    border-color: rgba(123, 223, 242, 0.35);
+  }
+
+  .msg.bot {
+    align-self: flex-start;
+  }
+
+  .msg-title {
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .match-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .match {
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .match-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+    font-size: 13px;
+  }
+
+  .match-meta {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .chat-input {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  textarea {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    color: var(--text);
+    resize: vertical;
+    min-height: 48px;
+    outline: none;
+  }
+
+  button {
+    background: rgba(123, 223, 242, 0.18);
+    border: 1px solid rgba(123, 223, 242, 0.4);
+    color: var(--text);
+    border-radius: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  button.secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border);
+  }
+
+  .status-card {
+    display: grid;
+    gap: 10px;
+  }
+
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 12px;
+  }
+
+  .status-label { color: var(--muted); }
+
+  .status-pill {
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(123, 223, 242, 0.12);
+    border: 1px solid rgba(123, 223, 242, 0.35);
+    font-size: 11px;
+  }
+
+  .status-pill.warn {
+    background: rgba(255, 107, 107, 0.15);
+    border-color: rgba(255, 107, 107, 0.35);
+  }
+
+  .hint {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .back-btn {
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .msg { animation: none; }
+  }
+</style>
+</head>
+<body>
+  <div id="access_overlay" class="access-overlay hidden">
+    <div class="access-card">
+      <div class="access-title">Dostop omejen</div>
+      <div class="access-sub">Za VSO ZNANJE je dovoljen dostop samo Domen in Sebastian Hohnjec. Prijavi se v Plasard.</div>
+      <a class="access-btn" href="../index.html">Nazaj na Plasard</a>
+    </div>
+  </div>
+  <div class="shell">
+    <header>
+      <div class="header-left">
+        <a class="back-btn" href="../index.html">← Nazaj</a>
+        <div>
+          <div class="title">VSO ZNANJE</div>
+          <div class="subtitle">Lokalni bot, ki isce po znanje.txt in stranke.json.</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="secondary" id="btn_reload">Osvezi podatke</button>
+        <button class="secondary" id="btn_link">Povezi mapo</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel chat">
+        <div class="messages" id="messages"></div>
+        <form id="chat_form" class="chat-input" autocomplete="off">
+          <textarea id="chat_input" placeholder="Vprasaj karkoli... (npr. 'Stranka Janez Novak' ali 'kako se racuna cena')"></textarea>
+          <button type="submit">Vprasaj</button>
+        </form>
+      </section>
+
+      <aside class="panel">
+        <div class="status-card">
+          <div class="status-row">
+            <div class="status-label">znanje.txt</div>
+            <div id="status_knowledge" class="status-pill">Nalaganje...</div>
+          </div>
+          <div class="status-row">
+            <div class="status-label">stranke.json</div>
+            <div id="status_customers" class="status-pill">Nalaganje...</div>
+          </div>
+          <div class="status-row">
+            <div class="status-label">neodgovorjena_vprasanja.txt</div>
+            <div id="status_log" class="status-pill">Ni povezave</div>
+          </div>
+        </div>
+        <div class="hint" id="stats_hint"></div>
+        <div class="hint">Ce bot ne najde odgovora, vprasanje zabelezi v neodgovorjena_vprasanja.txt.</div>
+      </aside>
+    </main>
+  </div>
+
+<script>
+(() => {
+  const LS_LOGIN = "plasard_login_v1";
+  const WINDOW_SESSION_KEY = "plasard_session_v1";
+  const FULL_ACCESS_NAMES = ["Domen Hohnjec", "Sebastian Hohnjec"];
+  const FULL_ACCESS_USERS = ["aroundthenet9", "sebastianh"];
+  const overlay = document.getElementById("access_overlay");
+  const shell = document.querySelector(".shell");
+
+  const normalizeName = (name) => String(name || "").trim().toLowerCase();
+  const todayKey = () => {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  };
+
+  const loadStoredSession = () => {
+    try {
+      const raw = localStorage.getItem(LS_LOGIN);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const readWindowNameSession = () => {
+    const raw = (window.name || "").trim();
+    if (!raw) return null;
+    try {
+      const payload = JSON.parse(raw);
+      if (payload && payload.key === WINDOW_SESSION_KEY && payload.session) return payload.session;
+    } catch (e) {}
+    return null;
+  };
+
+  const readUrlSession = () => {
+    const hash = (window.location.hash || "").replace(/^#/, "");
+    if (!hash) return null;
+    try {
+      const params = new URLSearchParams(hash);
+      const token = (params.get("s") || "").replace(/ /g, "+");
+      if (!token) return null;
+      const json = decodeURIComponent(atob(token));
+      return JSON.parse(json);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const resolveSession = () => {
+    const stored = loadStoredSession();
+    if (stored) return stored;
+    const win = readWindowNameSession();
+    if (win) {
+      try { localStorage.setItem(LS_LOGIN, JSON.stringify(win)); } catch (e) {}
+      return win;
+    }
+    const url = readUrlSession();
+    if (url) {
+      try { localStorage.setItem(LS_LOGIN, JSON.stringify(url)); } catch (e) {}
+      return url;
+    }
+    return null;
+  };
+
+  const session = resolveSession();
+  const allowed = !!session && (
+    FULL_ACCESS_NAMES.some(n => normalizeName(n) === normalizeName(session.fullName)) ||
+    FULL_ACCESS_USERS.some(n => normalizeName(n) === normalizeName(session.username))
+  );
+  if (!allowed) {
+    if (overlay) overlay.classList.remove("hidden");
+    if (shell) shell.classList.add("hidden");
+    return;
+  }
+
+  const state = {
+    knowledge: [],
+    customers: [],
+    documents: [],
+    dirHandle: null,
+    supportsFS: typeof window.showDirectoryPicker === "function"
+  };
+
+  const els = {
+    messages: document.getElementById("messages"),
+    input: document.getElementById("chat_input"),
+    form: document.getElementById("chat_form"),
+    statusKnowledge: document.getElementById("status_knowledge"),
+    statusCustomers: document.getElementById("status_customers"),
+    statusLog: document.getElementById("status_log"),
+    statsHint: document.getElementById("stats_hint"),
+    btnReload: document.getElementById("btn_reload"),
+    btnLink: document.getElementById("btn_link")
+  };
+
+  const LOG_DB = "vso_znanje_bot_db_v1";
+  const LOG_STORE = "handles";
+  const LOG_KEY = "dir";
+  const LOG_LOCAL_KEY = "vso_znanje_local_log_v1";
+
+  function setStatus(el, text, ok=true) {
+    if (!el) return;
+    el.textContent = text;
+    el.classList.toggle("warn", !ok);
+  }
+
+  function normalizeText(raw) {
+    return String(raw || "")
+      .toLowerCase()
+      .replace(/[\u010D\u0107]/g, "c")
+      .replace(/[\u0161]/g, "s")
+      .replace(/[\u017E]/g, "z")
+      .replace(/[^a-z0-9\s]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function tokenize(raw) {
+    const norm = normalizeText(raw);
+    if (!norm) return [];
+    return norm.split(" ").filter(t => t.length >= 2);
+  }
+
+  function snippet(text, max=220) {
+    const clean = String(text || "").replace(/\s+/g, " ").trim();
+    if (clean.length <= max) return clean;
+    return clean.slice(0, max).trim() + "...";
+  }
+
+  function fmtEUR(n) {
+    const num = Number(n || 0);
+    return num.toFixed(2).replace(".", ",") + " EUR";
+  }
+
+  function formatDate(iso) {
+    if (!iso) return "";
+    try {
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return iso;
+      return d.toLocaleString("sl-SI");
+    } catch (e) {
+      return iso;
+    }
+  }
+
+  function parseKnowledgeText(text) {
+    const blocks = String(text || "")
+      .replace(/^\uFEFF/, "")
+      .split(/\n\s*\n/)
+      .map(b => b.trim())
+      .filter(Boolean);
+
+    return blocks.map((block, idx) => {
+      const lines = block.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const title = lines[0] ? lines[0].replace(/^#+\s*/, "") : `Znanje #${idx+1}`;
+      const content = lines.slice(1).join(" ") || lines[0] || "";
+      return { id: `k${idx+1}`, title, content };
+    });
+  }
+
+  function parseCustomers(raw) {
+    if (Array.isArray(raw)) return raw;
+    if (raw && Array.isArray(raw.customers)) return raw.customers;
+    return [];
+  }
+
+  function parseDateValue(iso) {
+    if (!iso) return 0;
+    const t = Date.parse(iso);
+    return Number.isNaN(t) ? 0 : t;
+  }
+
+  function getLatestCustomer() {
+    if (!state.customers.length) return null;
+    const list = [...state.customers];
+    list.sort((a, b) => {
+      const ta = Math.max(parseDateValue(a.createdAt), parseDateValue(a.updatedAt));
+      const tb = Math.max(parseDateValue(b.createdAt), parseDateValue(b.updatedAt));
+      return tb - ta;
+    });
+    return list[0] || null;
+  }
+
+  function isLatestCustomerQuery(question) {
+    const q = normalizeText(question);
+    if (!q) return false;
+    const hasLast = q.includes("nazadnje") || q.includes("zadnja") || q.includes("zadnji") || q.includes("zadnje");
+    const hasCustomer = q.includes("stranka") || q.includes("stranke") || q.includes("meritev") || q.includes("meritve");
+    return hasLast && hasCustomer;
+  }
+
+  function buildDocuments() {
+    const docs = [];
+    for (const entry of state.knowledge) {
+      const title = entry.title || "Brez naslova";
+      const content = entry.content || "";
+      const search = normalizeText(`${title} ${content}`);
+      docs.push({
+        type: "knowledge",
+        title,
+        content,
+        search
+      });
+    }
+
+    for (const c of state.customers) {
+      const m = c.measure || {};
+      const name = (m.customer || "").trim() || "Neznana stranka";
+      const orderId = c.orderId || "";
+      const created = formatDate(c.createdAt || c.updatedAt || "");
+      const pricing = c.pricing || {};
+      const wardrobe = fmtEUR(pricing.wardrobePrice || 0);
+      const addonsTotal = fmtEUR(pricing.addonsTotal || 0);
+      const total = fmtEUR(pricing.total || 0);
+      const addons = Array.isArray(c.addons) ? c.addons : [];
+      const addonList = addons.slice(0, 6).map(a => {
+        const qty = Number(a.qty || 0);
+        const label = a.name || a.code || "Dodatek";
+        return `${label} x${qty}`;
+      }).join(", ");
+      const addonText = addons.length ? addonList + (addons.length > 6 ? " ..." : "") : "brez dodatkov";
+      const summary = `Order: ${orderId} | Datum: ${created} | Cena omare: ${wardrobe} | Dodatki: ${addonsTotal} | Skupaj: ${total} | Dodatki: ${addonText}`;
+      const search = normalizeText(`${name} ${orderId} ${summary} ${m.address || ""} ${m.title || ""}`);
+      docs.push({
+        type: "customer",
+        title: `Stranka: ${name}`,
+        content: summary,
+        search
+      });
+    }
+
+    state.documents = docs;
+    if (els.statsHint) {
+      els.statsHint.textContent = `Nalozeno znanje: ${state.knowledge.length} | Stranke: ${state.customers.length}`;
+    }
+  }
+
+  function searchDocs(question) {
+    const qNorm = normalizeText(question);
+    const qTokens = tokenize(question);
+    if (!qTokens.length) return [];
+
+    const wantsCustomers = qNorm.includes("stranka") || qNorm.includes("stranke") || qNorm.includes("meritev") || qNorm.includes("meritve") || qNorm.includes("order");
+    const pool = wantsCustomers ? state.documents.filter(d => d.type === "customer") : state.documents;
+    const scored = pool.map(doc => {
+      let score = 0;
+      for (const t of qTokens) {
+        if (doc.search.includes(t)) score += 1;
+      }
+      if (qNorm && doc.search.includes(qNorm)) score += 2;
+      return { doc, score };
+    }).filter(row => row.score > 0);
+
+    scored.sort((a, b) => b.score - a.score);
+    const minScore = qTokens.length <= 2 ? 1 : 2;
+    if (!scored.length || scored[0].score < minScore) {
+      if (wantsCustomers && pool.length !== state.documents.length) {
+        const scoredAll = state.documents.map(doc => {
+          let score = 0;
+          for (const t of qTokens) {
+            if (doc.search.includes(t)) score += 1;
+          }
+          if (qNorm && doc.search.includes(qNorm)) score += 2;
+          return { doc, score };
+        }).filter(row => row.score > 0);
+        scoredAll.sort((a, b) => b.score - a.score);
+        if (!scoredAll.length || scoredAll[0].score < minScore) return [];
+        return scoredAll.slice(0, 3);
+      }
+      return [];
+    }
+    return scored.slice(0, 3);
+  }
+
+  function addMessage(role, text) {
+    const el = document.createElement("div");
+    el.className = `msg ${role}`;
+    el.textContent = text;
+    els.messages.appendChild(el);
+    els.messages.scrollTop = els.messages.scrollHeight;
+  }
+
+  function addMatchMessage(matches) {
+    const wrap = document.createElement("div");
+    wrap.className = "msg bot";
+
+    const title = document.createElement("div");
+    title.className = "msg-title";
+    title.textContent = "Nasel sem naslednje:";
+    wrap.appendChild(title);
+
+    const list = document.createElement("div");
+    list.className = "match-list";
+
+    matches.forEach(({ doc }) => {
+      const card = document.createElement("div");
+      card.className = "match";
+
+      const t = document.createElement("div");
+      t.className = "match-title";
+      t.textContent = doc.title;
+
+      const meta = document.createElement("div");
+      meta.className = "match-meta";
+      meta.textContent = snippet(doc.content, doc.type === "customer" ? 260 : 200);
+
+      card.appendChild(t);
+      card.appendChild(meta);
+      list.appendChild(card);
+    });
+
+    wrap.appendChild(list);
+    els.messages.appendChild(wrap);
+    els.messages.scrollTop = els.messages.scrollHeight;
+  }
+
+  async function loadKnowledge() {
+    let manual = "";
+    let auto = "";
+    let hadAny = false;
+    try {
+      const res = await fetch("znanje.txt", { cache: "no-store" });
+      if (res.ok) {
+        manual = await res.text();
+        hadAny = true;
+      }
+    } catch (e) {}
+
+    try {
+      const resAuto = await fetch("znanje_auto.txt", { cache: "no-store" });
+      if (resAuto.ok) {
+        auto = await resAuto.text();
+        hadAny = true;
+      }
+    } catch (e) {}
+
+    if (!hadAny) {
+      state.knowledge = [];
+      setStatus(els.statusKnowledge, "Ni datoteke", false);
+      return;
+    }
+
+    const combined = [manual, auto].filter(Boolean).join("\\n\\n");
+    state.knowledge = parseKnowledgeText(combined);
+    setStatus(els.statusKnowledge, `OK (${state.knowledge.length})`, true);
+  }
+
+  async function loadCustomers() {
+    try {
+      const res = await fetch("stranke.json", { cache: "no-store" });
+      if (!res.ok) throw new Error("Ne najdem stranke.json");
+      const data = await res.json();
+      state.customers = parseCustomers(data);
+      setStatus(els.statusCustomers, `OK (${state.customers.length})`, true);
+    } catch (e) {
+      state.customers = [];
+      setStatus(els.statusCustomers, "Ni datoteke", false);
+    }
+  }
+
+  async function reloadAll() {
+    await Promise.all([loadKnowledge(), loadCustomers()]);
+    buildDocuments();
+  }
+
+  function msUntilNextMidnight() {
+    const now = new Date();
+    const next = new Date(now);
+    next.setHours(24, 0, 0, 0);
+    const ms = next - now;
+    return Math.max(1000, ms);
+  }
+
+  function scheduleMidnightReload() {
+    setTimeout(async () => {
+      await reloadAll();
+      scheduleMidnightReload();
+    }, msUntilNextMidnight());
+  }
+
+  function loadLocalLog() {
+    try {
+      const raw = localStorage.getItem(LOG_LOCAL_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveLocalLog(list) {
+    try { localStorage.setItem(LOG_LOCAL_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+
+  async function openLogDb() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(LOG_DB, 1);
+      req.onupgradeneeded = () => {
+        req.result.createObjectStore(LOG_STORE);
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function saveLogHandle(handle) {
+    const db = await openLogDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(LOG_STORE, "readwrite");
+      tx.objectStore(LOG_STORE).put(handle, LOG_KEY);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function loadLogHandle() {
+    const db = await openLogDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(LOG_STORE, "readonly");
+      const req = tx.objectStore(LOG_STORE).get(LOG_KEY);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function ensurePermission(handle) {
+    if (!handle || !handle.queryPermission) return "granted";
+    let perm = await handle.queryPermission({ mode: "readwrite" });
+    if (perm !== "granted") {
+      perm = await handle.requestPermission({ mode: "readwrite" });
+    }
+    return perm;
+  }
+
+  async function appendLineToFile(dirHandle, filename, text) {
+    const fileHandle = await dirHandle.getFileHandle(filename, { create: true });
+    const file = await fileHandle.getFile();
+    const writable = await fileHandle.createWritable({ keepExistingData: true });
+    await writable.write({ type: "write", position: file.size, data: text });
+    await writable.close();
+  }
+
+  async function flushLocalLog() {
+    const local = loadLocalLog();
+    if (!local.length || !state.dirHandle) return;
+    const lines = local.map(line => line.endsWith("\n") ? line : line + "\n").join("");
+    await appendLineToFile(state.dirHandle, "neodgovorjena_vprasanja.txt", lines);
+    saveLocalLog([]);
+  }
+
+  async function logUnknown(question) {
+    const ts = new Date().toISOString();
+    const line = `${ts} | ${question}`;
+
+    if (state.dirHandle) {
+      try {
+        await appendLineToFile(state.dirHandle, "neodgovorjena_vprasanja.txt", line + "\n");
+        setStatus(els.statusLog, "Zapisano", true);
+        return;
+      } catch (e) {
+        setStatus(els.statusLog, "Napaka zapisa", false);
+      }
+    }
+
+    const local = loadLocalLog();
+    local.push(line);
+    saveLocalLog(local);
+    setStatus(els.statusLog, "Lokalno shranjeno", false);
+  }
+
+  async function linkFolder() {
+    if (!state.supportsFS) {
+      setStatus(els.statusLog, "Brez podpore", false);
+      return;
+    }
+    try {
+      const handle = await window.showDirectoryPicker();
+      const perm = await ensurePermission(handle);
+      if (perm !== "granted") {
+        setStatus(els.statusLog, "Ni dovoljenja", false);
+        return;
+      }
+      state.dirHandle = handle;
+      await saveLogHandle(handle);
+      await flushLocalLog();
+      setStatus(els.statusLog, "Povezano", true);
+    } catch (e) {
+      setStatus(els.statusLog, "Preklicano", false);
+    }
+  }
+
+  async function initLogStatus() {
+    if (!state.supportsFS) {
+      setStatus(els.statusLog, "Brez podpore", false);
+      return;
+    }
+    try {
+      const handle = await loadLogHandle();
+      if (handle) {
+        const perm = await ensurePermission(handle);
+        if (perm === "granted") {
+          state.dirHandle = handle;
+          setStatus(els.statusLog, "Povezano", true);
+          await flushLocalLog();
+        } else {
+          setStatus(els.statusLog, "Potreben dostop", false);
+        }
+      } else {
+        setStatus(els.statusLog, "Ni povezave", false);
+      }
+    } catch (e) {
+      setStatus(els.statusLog, "Ni povezave", false);
+    }
+  }
+
+  function handleAsk(question) {
+    if (isLatestCustomerQuery(question)) {
+      const latest = getLatestCustomer();
+      if (!latest) {
+        addMessage("bot", "V stranke.json ni shranjenih strank.");
+        return;
+      }
+      const m = latest.measure || {};
+      const name = (m.customer || "").trim() || "Neznana stranka";
+      const when = formatDate(latest.createdAt || latest.updatedAt || "");
+      const orderId = latest.orderId || "—";
+      const pricing = latest.pricing || {};
+      const wardrobe = fmtEUR(pricing.wardrobePrice || 0);
+      const addons = fmtEUR(pricing.addonsTotal || 0);
+      const total = fmtEUR(pricing.total || 0);
+      addMessage(
+        "bot",
+        `Zadnja meritev\nStranka: ${name}\nOrder: ${orderId}\nDatum: ${when || "—"}\nCena omare: ${wardrobe}\nDodatki: ${addons}\nSkupaj: ${total}`
+      );
+      return;
+    }
+    const matches = searchDocs(question);
+    if (!matches.length) {
+      addMessage("bot", "Ne znam. Vprasanje sem zabelezil.");
+      logUnknown(question);
+      return;
+    }
+    addMatchMessage(matches);
+  }
+
+  els.form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const q = els.input.value.trim();
+    if (!q) return;
+    addMessage("user", q);
+    els.input.value = "";
+    handleAsk(q);
+  });
+
+  els.btnReload.addEventListener("click", () => reloadAll());
+  els.btnLink.addEventListener("click", () => linkFolder());
+
+  reloadAll();
+  scheduleMidnightReload();
+  initLogStatus();
+  addMessage("bot", "Pozdravljen. Vprasaj karkoli in poiskal bom v znanje.txt ali stranke.json.");
+})();
+</script>
+</body>
+</html>
